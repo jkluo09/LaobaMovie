@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影详情</title>
+	<script th:src="@{js/vue.js}"></script>
+	<script th:src="@{js/vue-cookies.js}"></script>
+	<script th:src="@{js/axios.min.js}"></script>
+	<script th:src="@{js/index.js}"></script>
+
+	<link rel="stylesheet" th:href="@{css/index.css}">
+	<style type="text/css">
+
+		.top{
+			background: #4280e6;
+			width: auto;
+			margin: 0;
+			padding: 0;
+		}
+		.footer{
+			background: #4280e6;
+			width: 100%;
+			margin: 0;
+			padding: 0;
+			position: fixed;
+			bottom: 40px;
+		}
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		#mtitle {
+			width: 1000px;
+			margin: 0;
+		}
+		h1{
+			margin: 10px;
+		}
+		td,tr{
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+	<a href="/index">
+	<div class="logo">
+		<img src="img/logo2.png"  >
+	</div>
+	</a>
+	<div class="top"><br><br></div>
+
+	<div id="content" class="content" align="center">
+		<div id="mtitle" align="left">
+			<h1>{{film.name}}{{film.year}}</h1>
+		</div>
+
+		<div>
+			<table border="0" width="1000px">
+				<tr>
+					<td rowspan="11" width="270">
+						<img v-bind:src="'img/pic/'+film.id+'.jpg'">
+					</td>
+				</tr>
+				<tr>
+					<td>导演:	<span>{{film.director}}</span></td>
+				</tr>
+				<tr>
+					<td>编剧:   <span>{{film.scriptwriter}}</span></td>
+				</tr>
+				<tr>
+					<td>主演:	<span>{{film.actor}}</span></td>
+				</tr>
+				<tr>
+					<td>类型:	<span>{{film.type}}</span></td>
+				</tr>
+				<tr>
+					<td>地区:	<span>{{film.area}}</span></td>
+				</tr>
+				<tr>
+					<td>语言:	<span>{{film.language}}</span></td>
+				</tr>				
+				<tr>
+					<td>上映时间:	<span>{{film.date}}</span></td>
+				</tr>
+				<tr>
+					<td>片长:	<span>{{film.runtime}}</span></td>
+				</tr>
+				<tr>
+					<td>豆瓣评分:	<span>{{film.rate}}</span></td>
+				</tr>
+				<tr>
+					<td>评分:
+						<div id="score" style="display: inline-block;">
+							<el-rate
+									@change="changeScore"
+									v-model="value1"
+									show-text>
+							</el-rate>
+						</div></td>
+				</tr>
+			</table>
+
+		</div>
+	</div>
+	<br>
+	<div class="footer"><br></div>
+	<!-- vue -->
+
+	<script>
+
+		var myVue = new Vue({
+			el:"#content",
+			data:{
+				movie_id : $cookies.get("filmid"),
+				film:{},
+				value1: null,
+			},
+			mounted:function (){
+				this.getfilm();
+			},
+			methods:{
+				getfilm:function(){
+					var that= this
+					axios.get("http://localhost:8080/find?id="+this.movie_id).then(
+							function (response){
+								that.film = response.data;
+
+							},function (err){
+							}
+					)
+					if ($cookies.get("userid")!=null){
+						axios.get("http://localhost:8080/findScore?userid="+$cookies.get("userid")+
+								"&filmid="+$cookies.get("filmid")).then(
+							function (response){
+								if (response==""){
+
+								}else {
+									that.value1 = response.data.score
+								}
+
+							},
+							function (err){}
+						)
+					}
+				},
+				changeScore:function (){
+					if($cookies.get("username")==null){
+						alert("当前未登录,请先登录!")
+						location.href="/login"
+					}else{
+						axios.get("http://localhost:8080/score?userid="+$cookies.get("userid")+
+						                                      "&filmid="+$cookies.get("filmid")+
+						 									  "&score="+this.value1).then(
+								function (response){
+									console.log(response)
+								},
+								function (err){}
+						)
+					}
+				}
+			}
+		})
+	</script>
+</body>
+</html>

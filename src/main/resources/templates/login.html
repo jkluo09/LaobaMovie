@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml"
+      xmlns:v-model="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎登陆</title>
+    <style type="text/css">
+    	body{
+    		text-align: center;
+    	}
+    	.login{
+            left: auto;
+    		width: 300px;
+    		height: auto;
+    		border-radius: 15px;
+    		border-width: 2px;
+    		border-style: solid;
+    		margin: auto;
+            background-color: white;
+    	}
+    	h1{
+    		padding: 0;
+    		margin: 0;
+    	}
+    </style>
+</head>
+<body>
+<img src="img/backgrounds/blue-background-img.jpg" width="100%" height="100%" style="z-index:-100;position:absolute;left:0;top:0">
+
+    <div><a href="/index">
+            <img src="img/logo2.png" >
+        </a>
+    </div>
+    <br>
+    <div class="login" id="log">
+    	<h1>用户登录</h1>
+    	<br>
+        <span>账号:</span> 
+        <input id="username" type="text" v-model:value="usern" placeholder="请输入账号">
+        <br>
+        <span>密码:</span>
+        <input id="password" type="passw" v-model:value="passw" placeholder="请输入密码">
+        <br>
+        <br id="br">
+        <input type="button" value="登录" @click="login">
+        &nbsp&nbsp&nbsp&nbsp&nbsp
+        <input type="button" value="注册" @click="regis">
+        <p></p>
+    </div>
+<script th:src="@{js/axios.min.js}"></script>
+<script th:src="@{js/vue.js}"></script>
+<script th:src="@{js/vue-cookies.js}"></script>
+<script>
+
+    var logVue = new Vue({
+        el:"#log",
+        data:{
+            usern:"",
+            passw:"",
+        },
+        methods:{
+            login:function (){
+                var that = this;
+                axios.get("http://localhost:8080/Login?username="+this.usern).then(
+                    function (response){
+                        var data = response.data;
+                        console.log(response)
+                        if (data==""){
+                            alert("不存在用户,请先注册!")
+                        }else if(data.username ==that.usern){
+                            if (data.password==that.passw){
+                                $cookies.set("username",data.username)
+                                $cookies.set("userid",data.id)
+                                window.location.href="http://localhost:8080/index"
+                            }else {
+                                that.passw = "";
+                                alert("密码错误,请重新输入密码!")
+                            }
+                        }
+                    },
+                    function (err){
+                        alert("遇到未知错误,请刷新重试,联系管理员")
+                    }
+                )
+            },
+            regis:function (){
+                var that = this;
+                console.log(this.passw);
+                axios.get("http://localhost:8080/Login?username="+this.usern).then(
+                    function (res){
+                        var data = res.data;
+                        if(data!=""){
+                            alert("用户已存在")
+                        }else{
+                            axios.get("http://localhost:8080/register?username="+that.usern+"&password="+that.passw).then(
+                                function (response){
+                                    alert("注册成功,请登录!")
+                                },
+                                function (err){
+
+                                }
+                            )
+                        }
+                    },
+                    function (erro){
+
+                    }
+                )
+            }
+        }
+    })
+</script>
+</body>
+</html>

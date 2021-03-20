@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.222.3/laoba?characterEncoding=utf-8
+    username: root
+    password: 123456
+
+movie_id: 1
+username: null
